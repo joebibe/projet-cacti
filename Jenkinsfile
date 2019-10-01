@@ -1,35 +1,21 @@
 pipeline {
-  agent {
-    docker {
-      image 'joebibe/projet-cacti'
-      args '-p 80:80'
-    }
+    agent any
 
-  }
-  stages {
-    stage('Build') {
-      parallel {
+    stages {
         stage('Build') {
-          steps {
-            echo 'Building..'
-          }
+            steps {
+                echo 'Building..'
+            }
         }
-        stage('build ') {
-          steps {
-            build(quietPeriod: 1, job: 'build image ')
-          }
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+            }
         }
-      }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
     }
-    stage('Test') {
-      steps {
-        echo 'Testing..'
-      }
-    }
-    stage('Deploy') {
-      steps {
-        echo 'Deploying....'
-      }
-    }
-  }
 }
