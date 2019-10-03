@@ -33,9 +33,9 @@ node {
             app.push("latest")
         }
         stage('Run Container on Srv_cacti'){
-            def dockerRun = 'docker run -p 80:80 -d --name my-cacti joebibe/projet-cacti'
-            sshagent(['srv_cacti']) {
-                sh "ssh -o StrictHostKeyChecking=no mgmt@192.168.1.79 ${dockerRun}"
+            docker.withServer('tcp://192.168.1.79:2375', 'srv_cacti'){ 
+                docker.withRegistry('https://hub.docker.com/u/joebibe/')
+             {
         }
     }
 }
