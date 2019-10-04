@@ -32,11 +32,5 @@ node {
             app.push("${env.BUILD_NUMBER}")
             app.push("latest")
         }
-        stage('Run Container on Srv_cacti'){
-            docker.withServer('tcp://192.168.1.79:2375', 'srv_cacti'){ 
-                docker.withRegistry('https://hub.docker.com/u/joebibe/')
-                image.push ()
-             {
-        }
     }
 }
