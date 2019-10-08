@@ -14,7 +14,7 @@ This is likely the most common example to deploy a cacti instance. This is not u
 version: '2'
 services:
   cacti:
-    image: "smcline06/cacti"
+    image: "joebibe/cacti"
     ports:
       - "80:80"
       - "443:443"
@@ -63,7 +63,7 @@ This instance would most likely be used if multiple servers are in close (same n
 version: '2'
 services:
   cacti-master:
-    image: "smcline06/cacti"
+    image: "joebibe/cacti"
     ports:
       - "80:80"
       - "443:443"
@@ -106,7 +106,7 @@ services:
 *docker-compose.yml (Server 02)*
 ```
   cacti-poller:
-    image: "smcline06/cacti"
+    image: "joebibe/cacti"
     ports:
       - "8080:80"
       - "8443:443"
@@ -137,7 +137,7 @@ Likely used for large deployments or where multiple locations/datacenters are at
 version: '2'
 services:
   cacti-master:
-    image: "smcline06/cacti"
+    image: "joebibe/cacti"
     ports:
       - "80:80"
       - "443:443"
@@ -179,7 +179,7 @@ services:
 *docker-compose.yml (Server 02)*
 ```
   cacti-poller:
-    image: "smcline06/cacti"
+    image: "joebibe/cacti"
     ports:
       - "8080:80"
       - "8443:443"
