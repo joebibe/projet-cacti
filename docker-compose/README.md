@@ -50,7 +50,7 @@ services:
       - --innodb_write_io_threads=16
     environment:
       - MYSQL_ROOT_PASSWORD=rootpassword
-      - TZ=America/Los_Angeles
+      - TZ=Europe/Paris
 ```
 
 ### Single DB, Multi Node - cacti_multi_shared.yml
