@@ -1,8 +1,8 @@
 ﻿# Cacti v1+ Docker Container
 [![](https://images.microbadger.com/badges/image/joebibe/cacti.svg)](https://microbadger.com/images/joebibe/cacti "Get your own image badge on microbadger.com")
 
-##### Github Repo: https://github.com/joebibe/docker-cacti
-##### Dockerhub Repo: https://hub.docker.com/r/joebibe/cacti/
+##### Github Repo: https://github.com/joebibe/projet-cacti
+##### Dockerhub Repo: https://hub.docker.com/r/joebibe/projet-cacti
 
 ## Cacti System
 Cacti is a complete network graphing solution designed to harness the power of RRDTool's data storage and graphing functionality. Cacti provides following features:
@@ -191,10 +191,10 @@ REPLACE INTO `%DB_NAME%`.`settings` (`name`, `value`) VALUES('poller_type', '2')
 #### 1.2.6 - 09/06/2019
  * Update Cacti and Spine from 1.2.0 to 1.2.6
    * [changelog][cacti_changelog]
- * Removed 1.1.X changelog notes from README.md, this can be located in [CHANGELOG.md](https://github.com/scline/docker-cacti/blob/master/changelog.md)
- * Close Issue [#49](https://github.com/scline/docker-cacti/issues/49) - New version of Spine don't have configure file
- * Close Issue [#45](https://github.com/scline/docker-cacti/issues/45) - Directories backup and backups mixed up; thank you [shortbloke](https://github.com/shortbloke) for [PR #46](https://github.com/scline/docker-cacti/pull/46)
- * Merge [PR #47](https://github.com/scline/docker-cacti/pull/47) and [PR #48](https://github.com/scline/docker-cacti/pull/48) - Add modify PHP env; thank you [joey741019](https://github.com/joey741019)
+ * Removed 1.1.X changelog notes from README.md, this can be located in [CHANGELOG.md](https://github.com/joebibe/projet-cacti/blob/master/changelog.md)
+ * Close Issue [#49](https://github.com/joebibe/projet-cacti/issues/49) - New version of Spine don't have configure file
+ * Close Issue [#45](https://github.com/joebibe/projet-cacti/issues/45) - Directories backup and backups mixed up; thank you [shortbloke](https://github.com/shortbloke) for [PR #46](https://github.com/joebibe/projet-cacti/pull/46)
+ * Merge [PR #47](https://github.com/joebibe/projet-cacti/pull/47) and [PR #48](https://github.com/joebibe/projet-cacti/pull/48) - Add modify PHP env; thank you [joey741019](https://github.com/joey741019)
 
 #### 1.2.0 - 01/06/2019
  * Update Cacti and Spine from 1.1.38 to 1.2.0
@@ -221,7 +221,7 @@ REPLACE INTO `%DB_NAME%`.`settings` (`name`, `value`) VALUES('poller_type', '2')
 [cacti_changelog]: https://www.cacti.net/changelog.php
 [cacti_download]: http://www.cacti.net/downloads
 [spine_download]: http://www.cacti.net/downloads/spine
-[arch]: https://github.com/scline/docker-cacti/tree/master/docker-compose
+[arch]: https://github.com/joebibe/projet-cacti/tree/master/docker-compose
 [docker_volume_help]: https://docs.docker.com/engine/tutorials/dockervolumes
 [cacti_forums]: http://forums.cacti.net
 [cws]: http://cacti.net
