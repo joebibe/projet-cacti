@@ -1,5 +1,5 @@
 FROM centos:7
-MAINTAINER Sean Cline <smcline06@gmail.com>
+MAINTAINER Joseph Mbengue (mbenguejoseph@gmail.com)
 
 ## --- SUPPORTING FILES ---
 COPY cacti /cacti_install
@@ -49,10 +49,12 @@ ENV \
     DB_USER=cactiuser \
     DB_PASS=cactipassword \
     DB_HOST=localhost \
+    DB_PORT=3306 \
     RDB_NAME=cacti \
     RDB_USER=cactiuser \
     RDB_PASS=cactipassword \
     RDB_HOST=localhost \
+    RDB_PORT=3306 \
     BACKUP_RETENTION=7 \
     BACKUP_TIME=0 \
     SNMP_COMMUNITY=public \
