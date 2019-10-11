@@ -1,97 +1,70 @@
-#name of container: docker-cacti
-#versison of container: 0.6.3
-FROM quantumobject/docker-baseimage:18.04
-MAINTAINER Angel Rodriguez  "angel@quantumobject.com"
+FROM centos:7
+MAINTAINER Sean Cline <smcline06@gmail.com>
 
-ENV TZ Europe/Paris
+## --- SUPPORTING FILES ---
+COPY cacti /cacti_install
 
-# Update the container
-#Installation of nesesary package/software for this containers...
-RUN apt-get update && echo $TZ > /etc/timezone && DEBIAN_FRONTEND=noninteractive apt-get install -yq mariadb-server mariadb-client php build-essential\
-                                                            apache2 snmp libapache2-mod-php libssl-dev \
-                                                            rrdtool librrds-perl php-mysql php-pear \
-                                                            php-common php-json php-gettext \
-                                                            php-pspell php-recode php-tidy php-xmlrpc \
-                                                            php-xml php-ldap php-mbstring php-intl \
-                                                            php-gd php-snmp php-gmp php-curl php-net-socket\
-                                                            libmysqlclient-dev libsnmp-dev dos2unix help2man git \
-                                                            snmpd python-netsnmp libnet-snmp-perl snmp-mibs-downloader \
-                                                            iputils-ping autoconf \
-                    && cd /opt/ \
-                    && wget https://www.cacti.net/downloads/cacti-latest.tar.gz \
-                    && ver=$(tar -tf cacti-latest.tar.gz | head -n1 | tr -d /) \
-                    && tar -xvf cacti-latest.tar.gz && mv $ver cacti \
-                    && rm cacti-latest.tar.gz \
-                    && apt-get clean \
-                    && rm -rf /tmp/* /var/tmp/*  \
-                    && rm -rf /var/lib/apt/lists/*
+## --- CACTI ---
+RUN \
+    rpm --rebuilddb && yum clean all && \
+    yum update -y && \
+    yum install -y \
+        rrdtool net-snmp net-snmp-utils cronie php-ldap php-devel mysql php \
+        ntp bison php-cli php-mysql php-common php-mbstring php-snmp curl \
+        php-gd openssl openldap mod_ssl php-pear net-snmp-libs php-pdo \
+        autoconf automake gcc gzip help2man libtool make net-snmp-devel \
+        m4 libmysqlclient-devel libmysqlclient openssl-devel dos2unix wget \
+        sendmail mariadb-devel which && \
+    yum clean all
 
-# Ensure cron is allowed to run
-RUN sed -i 's/^\(session\s\+required\s\+pam_loginuid\.so.*$\)/# \1/g' /etc/pam.d/cron
+## --- CRON ---
+# Fix cron issues - https://github.com/CentOS/CentOS-Dockerfiles/issues/31
+RUN sed -i '/session required pam_loginuid.so/d' /etc/pam.d/crond
 
-##Get Mibs
-RUN /usr/bin/download-mibs
-RUN echo 'mibs +ALL' >> /etc/snmp/snmp.conf
-## fix prblem with mibs downloader and ubuntu 18.04
-RUN rm /usr/share/snmp/mibs/ietf/IPSEC-SPD-MIB \
-    && rm /usr/share/snmp/mibs/ietf/IPATM-IPMC-MIB \
-    && rm /usr/share/snmp/mibs/iana/IANA-IPPM-METRICS-REGISTRY-MIB \
-    && rm /usr/share/snmp/mibs/ietf/SNMPv2-PDU
+## --- SERVICE CONFIGS ---
+COPY configs /template_configs
 
-##startup scripts
-#Pre-config scrip that maybe need to be run one time only when the container run the first time .. using a flag to don't
-#run it again ... use for conf for service ... when run the first time ...
-RUN mkdir -p /etc/my_init.d
-COPY startup.sh /etc/my_init.d/startup.sh
-RUN chmod +x /etc/my_init.d/startup.sh
+## --- SETTINGS/EXTRAS ---
+COPY plugins /cacti_install/plugins
+COPY templates /templates
+COPY settings /settings
 
-##Adding Deamons to containers
-# to add apache2 deamon to runit
-RUN mkdir -p /etc/service/apache2  /var/log/apache2 ; sync
-COPY apache2.sh /etc/service/apache2/run
-RUN chmod +x /etc/service/apache2/run  \
-    && cp /var/log/cron/config /var/log/apache2/ \
-    && chown -R www-data /var/log/apache2
+## --- SCRIPTS ---
+COPY upgrade.sh /upgrade.sh
+RUN chmod +x /upgrade.sh
+COPY restore.sh /restore.sh
+RUN chmod +x /restore.sh
+COPY backup.sh /backup.sh
+RUN chmod +x /backup.sh
+RUN mkdir /backups
+RUN mkdir /cacti
+RUN mkdir /spine
 
-# to add mysqld deamon to runit
-RUN mkdir -p /etc/service/mysqld /var/log/mysqld ; sync
-COPY mysqld.sh /etc/service/mysqld/run
-RUN chmod +x /etc/service/mysqld/run  \
-    && cp /var/log/cron/config /var/log/mysqld/ \
-    && chown -R mysql /var/log/mysqld
+## -- MISC SETUP --
+RUN echo "ServerName localhost" > /etc/httpd/conf.d/fqdn.conf
 
-# to add mysqld deamon to runit
-RUN mkdir -p /etc/service/snmpd /var/log/snmpd ; sync
-COPY snmpd.sh /etc/service/snmpd/run
-RUN chmod +x /etc/service/snmpd/run  \
-   && cp /var/log/cron/config /var/log/snmpd/ \
-   && chown -R Debian-snmp /var/log/snmpd
+## --- ENV ---
+ENV \
+    DB_NAME=cacti \
+    DB_USER=cactiuser \
+    DB_PASS=cactipassword \
+    DB_HOST=localhost \
+    RDB_NAME=cacti \
+    RDB_USER=cactiuser \
+    RDB_PASS=cactipassword \
+    RDB_HOST=localhost \
+    BACKUP_RETENTION=7 \
+    BACKUP_TIME=0 \
+    SNMP_COMMUNITY=public \
+    REMOTE_POLLER=0 \
+    INITIALIZE_DB=0 \
+    INITIALIZE_INFLUX=0 \
+    TZ=UTC \
+    PHP_MEMORY_LIMIT=800M \
+    PHP_MAX_EXECUTION_TIME=60
 
-#add files and script that need to be use for this container
-#include conf file relate to service/daemon
-#additionsl tools to be use internally
-COPY snmpd.conf /etc/snmp/snmpd.conf
-COPY debian.conf /opt/cacti/include/config.php
-COPY spine.conf /usr/local/spine/etc/spine.conf
+## --- Start ---
+COPY start.sh /start.sh
+CMD ["/start.sh"]
 
-#pre-config scritp for different service that need to be run when container image is create
-#maybe include additional software that need to be installed ... with some service running ... like example mysqld
-COPY pre-conf.sh /sbin/pre-conf
-RUN chmod +x /sbin/pre-conf ; sync \
-    && /bin/bash -c /sbin/pre-conf \
-    && rm /sbin/pre-conf
-
-##scritp that can be running from the outside using docker-bash tool ...
-## for example to create backup for database with convitation of VOLUME   dockers-bash container_ID backup_mysql
-COPY backup.sh /sbin/backup
-COPY restore.sh /sbin/restore
-RUN chmod +x /sbin/backup /sbin/restore
-VOLUME /var/backups
-
-
-# to allow access from outside of the container  to the container service
-# at that ports need to allow access from firewall if need to access it outside of the server.
-EXPOSE 80
-
-# Use baseimage-docker's init system.
-CMD ["/sbin/my_init"]
+EXPOSE 80 443
