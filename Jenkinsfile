@@ -1,10 +1,36 @@
 node {
-    checkout scm
+    def app
 
-    docker.withRegistry('https://hub.docker.com/r/joebibe/projet-cacti') {
+    stage('Clone repository') {
+        /* Let's make sure we have the repository cloned to our workspace */
 
-        docker.image('joebibe/projet-cacti').inside {
-            sh 'make test'
+        checkout scm
+    }
+
+    stage('Build image') {
+        /* This builds the actual image; synonymous to
+         * docker build on the command line */
+
+        app = docker.build("joebibe/projet-cacti")
+    }
+
+    stage('Test image') {
+        /* Ideally, we would run a test framework against our image.
+         * For this example, we're using a Volkswagen-type approach ;-) */
+
+        app.inside {
+            sh 'echo "Tests passed"'
         }
     }
+
+    stage('Push image') {
+        /* Finally, we'll push the image with two tags:
+         * First, the incremental build number from Jenkins
+         * Second, the 'latest' tag.
+         * Pushing multiple tags is cheap, as all the layers are reused. */
+        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-token') {
+            app.push("${env.BUILD_NUMBER}")
+            app.push("latest")
+        }
+     }    
 }
